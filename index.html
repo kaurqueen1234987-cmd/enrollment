@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Portal</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            width: 320px;
+            text-align: center;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #4c5ccc;
+        }
+
+        .signin {
+            background: #764ba2;
+        }
+
+        .signin:hover {
+            background: #5b3680;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Welcome Student!</h1>
+
+    <p>Please select your option</p>
+
+    <button onclick="location.href='signup.html'">
+        Sign Up
+    </button>
+
+    <button class="signin"
+    onclick="location.href='enrollment.html'">
+        Sign In
+    </button>
+
+</div>
+
+</body>
+</html>
