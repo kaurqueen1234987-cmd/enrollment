@@ -1,130 +1,238 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Student Enrollment Form</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Enrollment Form</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-        .container {
-            background: white;
-            padding: 30px;
-            width: 350px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2ff;
+      padding: 20px;
+      margin: 0;
+    }
 
-        h2 {
-            text-align: center;
-            color: #333;
-        }
+    .container {
+      max-width: 500px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
 
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 7px;
-            box-sizing: border-box;
-        }
+    h2 {
+      text-align: center;
+      color: #263b80;
+    }
 
-        button {
-            width: 100%;
-            padding: 13px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 7px;
-            font-size: 16px;
-            cursor: pointer;
-        }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      margin: 9px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
 
-        button:hover {
-            background: #4c5ccc;
-        }
+    button {
+      width: 100%;
+      padding: 13px;
+      background: #263b80;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-        #message {
-            text-align: center;
-            color: green;
-        }
-    </style>
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #message {
+      text-align: center;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
-
-    <h2>Student Enrollment</h2>
+  <div class="container">
+    <h2>Student Enrollment Form</h2>
 
     <form id="enrollmentForm">
 
-        <input type="text"
-        id="name"
-        placeholder="Enter Student Name"
-        required>
+      <input type="text" id="studentName"
+        placeholder="Student Name" required>
 
-        <select id="branch" required>
-            <option value="">Select Branch</option>
-            <option value="CSE">Computer Science (CSE)</option>
-            <option value="ECE">Electronics (ECE)</option>
-            <option value="ME">Mechanical</option>
-            <option value="CE">Civil</option>
-            <option value="IT">Information Technology</option>
-        </select>
+      <input type="email" id="email"
+        placeholder="Email Address" required>
 
-        <input type="email"
-        id="email"
-        placeholder="Enter Email ID"
-        required>
+      <input type="tel" id="phone"
+        placeholder="Phone Number" required>
 
-        <input type="password"
-        id="password"
-        placeholder="Enter Password"
-        required>
+      <input type="text" id="course"
+        placeholder="Course Name" required>
 
-        <button type="submit">Submit Enrollment</button>
+      <input type="text" id="field"
+        placeholder="Field / Branch" required>
+
+      <input type="text" id="college"
+        placeholder="College Name">
+
+      <input type="text" id="rollNumber"
+        placeholder="Roll Number">
+
+      <textarea id="address"
+        placeholder="Full Address" required></textarea>
+
+      <button type="submit" id="submitBtn">
+        Submit Enrollment
+      </button>
 
     </form>
 
     <p id="message"></p>
+  </div>
 
-</div>
+  <script type="module">
 
-<script>
+    // Firebase imports
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-document.getElementById("enrollmentForm")
-.addEventListener("submit", function(e) {
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    e.preventDefault();
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    const name = document.getElementById("name").value;
-    const branch = document.getElementById("branch").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
 
-    console.log({
-        name: name,
-        branch: branch,
-        email: email
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAui_73IiFeFnpC7EkFqkCoc6FlDwhqhGA",
+      authDomain: "student-form-91ccf.firebaseapp.com",
+      projectId: "student-form-91ccf",
+      storageBucket: "student-form-91ccf.firebasestorage.app",
+      messagingSenderId: "812729360263",
+      appId: "1:812729360263:web:ada5aafd21bec488fafd22",
+      measurementId: "G-NM3BZFZQ2M"
+    };
+
+
+    // Firebase connection
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+
+    // Google Sheet URL
+    const GOOGLE_SCRIPT_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
+
+
+    // Check login
+    let currentUser = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      } else {
+        currentUser = user;
+
+        document.getElementById("studentName").value =
+          user.displayName || "";
+
+        document.getElementById("email").value =
+          user.email || "";
+      }
     });
 
-    document.getElementById("message").innerText =
-    "Enrollment submitted successfully!";
 
-    this.reset();
+    // Form submit
+    const form = document.getElementById("enrollmentForm");
+    const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
 
-});
+    form.addEventListener("submit", async (event) => {
 
-</script>
+      event.preventDefault();
+
+      if (!currentUser) {
+        message.textContent = "Please sign in first.";
+        return;
+      }
+
+      if (GOOGLE_SCRIPT_URL === "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE") {
+        message.textContent = "Please add your Google Sheet URL first.";
+        return;
+      }
+
+      submitBtn.disabled = true;
+      message.textContent = "Saving your enrollment...";
+
+      const studentData = {
+        uid: currentUser.uid,
+        studentName: document.getElementById("studentName").value.trim(),
+        email: document.getElementById("email").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        course: document.getElementById("course").value.trim(),
+        field: document.getElementById("field").value.trim(),
+        college: document.getElementById("college").value.trim(),
+        rollNumber: document.getElementById("rollNumber").value.trim(),
+        address: document.getElementById("address").value.trim(),
+        createdAt: serverTimestamp()
+      };
+
+      try {
+
+        // Save in Firebase
+        await addDoc(collection(db, "enrollments"), studentData);
+
+        // Send to Google Sheet
+        await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          body: JSON.stringify(studentData)
+        });
+
+        message.textContent =
+          "Enrollment submitted! Please check your Google Sheet.";
+
+        form.reset();
+
+        document.getElementById("studentName").value =
+          currentUser.displayName || "";
+
+        document.getElementById("email").value =
+          currentUser.email || "";
+
+      } catch (error) {
+
+        message.textContent = "Error: " + error.message;
+
+      } finally {
+        submitBtn.disabled = false;
+      }
+
+    });
+
+  </script>
 
 </body>
 </html>
